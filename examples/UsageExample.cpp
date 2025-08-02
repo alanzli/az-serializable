@@ -1,21 +1,22 @@
-#include "Serializable.h"
-#include "JsonSerializer.h"
-#include "SerializationErrors.h"
-#include <iostream>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <unordered_map>
 #include <array>
-#include <cstdint>
-#include <limits>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
+#include <iostream>
+#include <limits>
+#include <list>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <vector>
+
+#include "JsonSerializer.h"
+#include "Serializable.h"
+#include "SerializationErrors.h"
 
 // --- Simple Types Demo ---
 class SimpleTypesDemo : public az::Serializable {
-private:
+   private:
     int int_val = 42;
     long long_val = 1234567890L;
     long long long_long_val = 9223372036854775807LL;
@@ -35,7 +36,8 @@ private:
     std::uint16_t uint16_val = 65535;
     std::uint32_t uint32_val = 4294967295U;
     std::uint64_t uint64_val = 18446744073709551615ULL;
-public:
+
+   public:
     void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("int_val", int_val);
         serializer.serializeProperty("long_val", long_val);
@@ -61,7 +63,7 @@ public:
 
 // --- Container Demo ---
 class ContainerData : public az::Serializable {
-private:
+   private:
     std::vector<int> numbers_ = {1, 2, 3, 4, 5};
     std::list<std::string> names_ = {"Alice", "Bob", "Charlie"};
     std::set<double> unique_values_ = {1.1, 2.2, 3.3};
@@ -69,7 +71,8 @@ private:
     std::unordered_map<int, std::string> int_to_string_ = {{1, "first"}, {2, "second"}, {3, "third"}};
     std::array<bool, 3> flags_ = {true, false, true};
     std::vector<std::vector<int>> matrix_ = {{1, 2}, {3, 4}, {5, 6}};
-public:
+
+   public:
     void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("numbers", numbers_);
         serializer.serializeProperty("names", names_);
@@ -83,10 +86,11 @@ public:
 
 // --- Nested Container Demo ---
 class NestedItem : public az::Serializable {
-private:
+   private:
     int id_;
     std::string name_;
-public:
+
+   public:
     NestedItem(int id, const std::string& name) : id_(id), name_(name) {}
     void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("id", id_);
@@ -95,10 +99,11 @@ public:
 };
 
 class NestedContainerData : public az::Serializable {
-private:
+   private:
     std::vector<NestedItem> items_;
     std::map<std::string, NestedItem> item_map_;
-public:
+
+   public:
     NestedContainerData() {
         items_.emplace_back(1, "Item One");
         items_.emplace_back(2, "Item Two");
@@ -114,10 +119,11 @@ public:
 
 // --- Numeric and Type Safety Demo ---
 class TypeSafetyDemo : public az::Serializable {
-private:
+   private:
     std::int8_t small_int_;
     std::uint64_t large_uint_;
-public:
+
+   public:
     TypeSafetyDemo(std::int8_t small, std::uint64_t large) : small_int_(small), large_uint_(large) {}
     void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("small_int", small_int_);
@@ -126,11 +132,13 @@ public:
 };
 
 class NumericContainerDemo : public az::Serializable {
-private:
+   private:
     std::vector<std::int64_t> int64_vector_ = {-9223372036854775807LL, 0LL, 9223372036854775807LL};
     std::vector<float> float_vector_ = {-3.14f, 0.0f, 2.718f, 1.414f};
-    std::map<std::uint32_t, std::string> uint_to_string_map_ = {{1U, "one"}, {1000000U, "million"}, {4294967295U, "max_uint32"}};
-public:
+    std::map<std::uint32_t, std::string> uint_to_string_map_ = {
+        {1U, "one"}, {1000000U, "million"}, {4294967295U, "max_uint32"}};
+
+   public:
     void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("int64_vector", int64_vector_);
         serializer.serializeProperty("float_vector", float_vector_);
@@ -140,8 +148,8 @@ public:
 
 void demonstrateTypeLimits() {
     std::cout << "=== Type Limits Demonstration ===\n";
-    std::cout << "int8_t range: " << static_cast<int>(std::numeric_limits<std::int8_t>::min()) 
-              << " to " << static_cast<int>(std::numeric_limits<std::int8_t>::max()) << "\n";
+    std::cout << "int8_t range: " << static_cast<int>(std::numeric_limits<std::int8_t>::min()) << " to "
+              << static_cast<int>(std::numeric_limits<std::int8_t>::max()) << "\n";
     std::cout << "uint64_t max: " << std::numeric_limits<std::uint64_t>::max() << "\n";
     std::cout << "float precision: " << std::numeric_limits<float>::digits10 << " decimal digits\n";
     std::cout << "double precision: " << std::numeric_limits<double>::digits10 << " decimal digits\n\n";
