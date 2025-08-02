@@ -10,9 +10,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "az/JsonSerializer.h"
 #include "az/Serializable.h"
 #include "az/SerializationErrors.h"
+#include "az/json/JsonSerializer.h"
 
 // --- Simple Types Demo ---
 class SimpleTypesDemo : public az::Serializable {

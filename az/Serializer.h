@@ -64,183 +64,180 @@ class TypedSerializer {
 
     template <typename T>
     void serializeProperty(const std::string &name, const T &value) {
+        processProperty(name, serializeElementToString(value));
+    }
+
+    template <typename T>
+    std::string serializeElementToString(const T &value) const {
         if constexpr (std::is_same_v<T, int>) {
-            serializePropertyImpl(name, static_cast<int>(value));
+            return serializeToString(static_cast<int>(value));
         } else if constexpr (std::is_same_v<T, long>) {
-            serializePropertyImpl(name, static_cast<long>(value));
+            return serializeToString(static_cast<long>(value));
         } else if constexpr (std::is_same_v<T, long long>) {
-            serializePropertyImpl(name, static_cast<long long>(value));
+            return serializeToString(static_cast<long long>(value));
         } else if constexpr (std::is_same_v<T, unsigned int>) {
-            serializePropertyImpl(name, static_cast<unsigned int>(value));
+            return serializeToString(static_cast<unsigned int>(value));
         } else if constexpr (std::is_same_v<T, unsigned long>) {
-            serializePropertyImpl(name, static_cast<unsigned long>(value));
+            return serializeToString(static_cast<unsigned long>(value));
         } else if constexpr (std::is_same_v<T, unsigned long long>) {
-            serializePropertyImpl(name, static_cast<unsigned long long>(value));
+            return serializeToString(static_cast<unsigned long long>(value));
         } else if constexpr (std::is_same_v<T, float>) {
-            serializePropertyImpl(name, static_cast<float>(value));
+            return serializeToString(static_cast<float>(value));
         } else if constexpr (std::is_same_v<T, double>) {
-            serializePropertyImpl(name, static_cast<double>(value));
+            return serializeToString(static_cast<double>(value));
         } else if constexpr (std::is_same_v<T, bool>) {
-            serializePropertyImpl(name, static_cast<bool>(value));
+            return serializeToString(static_cast<bool>(value));
         } else if constexpr (std::is_same_v<T, char>) {
-            serializePropertyImpl(name, static_cast<char>(value));
+            return serializeToString(static_cast<char>(value));
         } else if constexpr (std::is_same_v<T, std::string>) {
-            serializePropertyImpl(name, static_cast<const std::string &>(value));
+            return serializeToString(static_cast<const std::string &>(value));
         } else if constexpr (std::is_same_v<T, std::int8_t>) {
-            serializePropertyImpl(name, static_cast<std::int8_t>(value));
+            return serializeToString(static_cast<std::int8_t>(value));
         } else if constexpr (std::is_same_v<T, std::int16_t>) {
-            serializePropertyImpl(name, static_cast<std::int16_t>(value));
+            return serializeToString(static_cast<std::int16_t>(value));
         } else if constexpr (std::is_same_v<T, std::uint8_t>) {
-            serializePropertyImpl(name, static_cast<std::uint8_t>(value));
+            return serializeToString(static_cast<std::uint8_t>(value));
         } else if constexpr (std::is_same_v<T, std::uint16_t>) {
-            serializePropertyImpl(name, static_cast<std::uint16_t>(value));
+            return serializeToString(static_cast<std::uint16_t>(value));
         } else if constexpr (std::is_same_v<T, std::int32_t>) {
             if constexpr (std::is_same_v<std::int32_t, int>) {
-                serializePropertyImpl(name, static_cast<int>(value));
+                return serializeToString(static_cast<int>(value));
             } else if constexpr (std::is_same_v<std::int32_t, long>) {
-                serializePropertyImpl(name, static_cast<long>(value));
+                return serializeToString(static_cast<long>(value));
             } else {
-                serializeInt32(name, value);
+                return serializeInt32(value);
             }
         } else if constexpr (std::is_same_v<T, std::int64_t>) {
             if constexpr (std::is_same_v<std::int64_t, long>) {
-                serializePropertyImpl(name, static_cast<long>(value));
+                return serializeToString(static_cast<long>(value));
             } else if constexpr (std::is_same_v<std::int64_t, long long>) {
-                serializePropertyImpl(name, static_cast<long long>(value));
+                return serializeToString(static_cast<long long>(value));
             } else {
-                serializeInt64(name, value);
+                return serializeInt64(value);
             }
         } else if constexpr (std::is_same_v<T, std::uint32_t>) {
             if constexpr (std::is_same_v<std::uint32_t, unsigned int>) {
-                serializePropertyImpl(name, static_cast<unsigned int>(value));
+                return serializeToString(static_cast<unsigned int>(value));
             } else if constexpr (std::is_same_v<std::uint32_t, unsigned long>) {
-                serializePropertyImpl(name, static_cast<unsigned long>(value));
+                return serializeToString(static_cast<unsigned long>(value));
             } else {
-                serializeUint32(name, value);
+                return serializeUint32(value);
             }
         } else if constexpr (std::is_same_v<T, std::uint64_t>) {
             if constexpr (std::is_same_v<std::uint64_t, unsigned long>) {
-                serializePropertyImpl(name, static_cast<unsigned long>(value));
+                return serializeToString(static_cast<unsigned long>(value));
             } else if constexpr (std::is_same_v<std::uint64_t, unsigned long long>) {
-                serializePropertyImpl(name, static_cast<unsigned long long>(value));
+                return serializeToString(static_cast<unsigned long long>(value));
             } else {
-                serializeUint64(name, value);
+                return serializeUint64(value);
             }
         } else if constexpr (std::is_base_of_v<Serializable, T>) {
-            serializeNestedObject(name, static_cast<const Serializable &>(value));
+            return serializeToString(static_cast<const Serializable &>(value));
         } else if constexpr (is_associative_container<T>::value) {
-            serializeAssociativeContainer(name, value);
+            return serializeAssociativeContainer(value);
         } else if constexpr (is_container<T>::value || has_begin_end<T>::value) {
-            serializeSequenceContainer(name, value);
+            return serializeSequenceContainer(value);
         } else {
-            serializeUnsupportedType(name);
+            return serializeUnsupportedType();
         }
     }
 
    protected:
-    virtual void serializePropertyImpl(const std::string &name, long long value) = 0;
-    virtual void serializePropertyImpl(const std::string &name, unsigned long long value) = 0;
-    virtual void serializePropertyImpl(const std::string &name, double value) = 0;
-    virtual void serializePropertyImpl(const std::string &name, bool value) = 0;
-    virtual void serializePropertyImpl(const std::string &name, char value) = 0;
-    virtual void serializePropertyImpl(const std::string &name, const std::string &value) = 0;
+    virtual void processProperty(const std::string &name, const std::string &value) = 0;
+    virtual std::string serializeToString(long long value) const = 0;
+    virtual std::string serializeToString(unsigned long long value) const = 0;
+    virtual std::string serializeToString(double value) const = 0;
+    virtual std::string serializeToString(bool value) const = 0;
+    virtual std::string serializeToString(char value) const = 0;
+    virtual std::string serializeToString(const std::string &value) const = 0;
+    virtual std::string serializeToString(const Serializable &obj) const = 0;
+    virtual std::string serializeToString(const std::vector<std::string> &elements) const = 0;
+    virtual std::string serializeToString(const std::vector<std::pair<std::string, std::string>> &pairs) const = 0;
 
-    virtual void serializeNestedObject(const std::string &name, const Serializable &value) = 0;
-    virtual void serializeArray(const std::string &name, const std::vector<std::string> &elements) = 0;
-    virtual void serializeObject(const std::string &name,
-                                 const std::vector<std::pair<std::string, std::string>> &pairs) = 0;
-
-    virtual std::string serializeNestedToString(const Serializable &obj) const = 0;
-    virtual std::string createArray(const std::vector<std::string> &elements) const = 0;
-    virtual std::string createObject(const std::vector<std::pair<std::string, std::string>> &pairs) const = 0;
-    virtual void serializeUnsupportedType(const std::string &name) = 0;
+    virtual std::string serializeUnsupportedType() const { return "\"[unsupported type]\""; }
 
     // Overloaded methods for different types
-    virtual void serializePropertyImpl(const std::string &name, int value) {
-        serializePropertyImpl(name, static_cast<long long>(value));
+    virtual std::string serializeToString(int value) const { return serializeToString(static_cast<long long>(value)); }
+    virtual std::string serializeToString(long value) const { return serializeToString(static_cast<long long>(value)); }
+
+    virtual std::string serializeToString(unsigned int value) const {
+        return serializeToString(static_cast<unsigned long long>(value));
     }
-    virtual void serializePropertyImpl(const std::string &name, long value) {
-        serializePropertyImpl(name, static_cast<long long>(value));
+    virtual std::string serializeToString(unsigned long value) const {
+        return serializeToString(static_cast<unsigned long long>(value));
     }
 
-    virtual void serializePropertyImpl(const std::string &name, unsigned int value) {
-        serializePropertyImpl(name, static_cast<unsigned long long>(value));
-    }
-    virtual void serializePropertyImpl(const std::string &name, unsigned long value) {
-        serializePropertyImpl(name, static_cast<unsigned long long>(value));
-    }
+    virtual std::string serializeToString(float value) const { return serializeToString(static_cast<double>(value)); }
 
-    virtual void serializePropertyImpl(const std::string &name, float value) {
-        serializePropertyImpl(name, static_cast<double>(value));
+    virtual std::string serializeToString(const char *value) const { return serializeToString(std::string(value)); }
+    virtual std::string serializeToString(std::int8_t value) const {
+        return serializeToString(static_cast<int>(value));
     }
-
-    virtual void serializePropertyImpl(const std::string &name, const char *value) {
-        serializePropertyImpl(name, std::string(value));
-    }
-    virtual void serializePropertyImpl(const std::string &name, std::int8_t value) {
-        serializePropertyImpl(name, static_cast<int>(value));
-    }
-    virtual void serializePropertyImpl(const std::string &name, std::int16_t value) {
-        serializePropertyImpl(name, static_cast<int>(value));
+    virtual std::string serializeToString(std::int16_t value) const {
+        return serializeToString(static_cast<int>(value));
     }
 
     template <typename T = std::int32_t>
-    typename std::enable_if_t<!std::is_same_v<T, int> && !std::is_same_v<T, long> && !std::is_same_v<T, long long>>
-    serializePropertyImpl(const std::string &name, std::int32_t value) {
-        serializeInt32(name, value);
+    typename std::enable_if_t<!std::is_same_v<T, int> && !std::is_same_v<T, long> && !std::is_same_v<T, long long>,
+                              std::string>
+    serializeToString(std::int32_t value) const {
+        return serializeInt32(value);
     }
     template <typename T = std::int64_t>
-    typename std::enable_if_t<!std::is_same_v<T, int> && !std::is_same_v<T, long> && !std::is_same_v<T, long long>>
-    serializePropertyImpl(const std::string &name, std::int64_t value) {
-        serializeInt64(name, value);
+    typename std::enable_if_t<!std::is_same_v<T, int> && !std::is_same_v<T, long> && !std::is_same_v<T, long long>,
+                              std::string>
+    serializeToString(std::int64_t value) const {
+        return serializeInt64(value);
     }
-    virtual void serializePropertyImpl(const std::string &name, std::uint8_t value) {
-        serializePropertyImpl(name, static_cast<unsigned int>(value));
+    virtual std::string serializeToString(std::uint8_t value) const {
+        return serializeToString(static_cast<unsigned int>(value));
     }
-    virtual void serializePropertyImpl(const std::string &name, std::uint16_t value) {
-        serializePropertyImpl(name, static_cast<unsigned int>(value));
+    virtual std::string serializeToString(std::uint16_t value) const {
+        return serializeToString(static_cast<unsigned int>(value));
     }
 
     template <typename T = std::uint32_t>
     typename std::enable_if_t<!std::is_same_v<T, unsigned int> && !std::is_same_v<T, unsigned long> &&
-                              !std::is_same_v<T, unsigned long long>>
-    serializePropertyImpl(const std::string &name, std::uint32_t value) {
-        serializeUint32(name, value);
+                                  !std::is_same_v<T, unsigned long long>,
+                              std::string>
+    serializeToString(std::uint32_t value) {
+        return serializeUint32(value);
     }
     template <typename T = std::uint64_t>
     typename std::enable_if_t<!std::is_same_v<T, unsigned int> && !std::is_same_v<T, unsigned long> &&
-                              !std::is_same_v<T, unsigned long long>>
-    serializePropertyImpl(const std::string &name, std::uint64_t value) {
-        serializeUint64(name, value);
+                                  !std::is_same_v<T, unsigned long long>,
+                              std::string>
+    serializeToString(std::uint64_t value) {
+        return serializeUint64(value);
     }
 
-    virtual void serializeInt32(const std::string &name, std::int32_t value) {
-        serializePropertyImpl(name, static_cast<long long>(value));
+    virtual std::string serializeInt32(std::int32_t value) const {
+        return serializeToString(static_cast<long long>(value));
     }
-    virtual void serializeInt64(const std::string &name, std::int64_t value) {
-        serializePropertyImpl(name, static_cast<long long>(value));
+    virtual std::string serializeInt64(std::int64_t value) const {
+        return serializeToString(static_cast<long long>(value));
     }
-    virtual void serializeUint32(const std::string &name, std::uint32_t value) {
-        serializePropertyImpl(name, static_cast<unsigned long long>(value));
+    virtual std::string serializeUint32(std::uint32_t value) const {
+        return serializeToString(static_cast<unsigned long long>(value));
     }
-    virtual void serializeUint64(const std::string &name, std::uint64_t value) {
-        serializePropertyImpl(name, static_cast<unsigned long long>(value));
+    virtual std::string serializeUint64(std::uint64_t value) const {
+        return serializeToString(static_cast<unsigned long long>(value));
     }
 
     virtual std::string escapeString(const std::string &input) const { return input; }
 
    private:
     template <typename Container>
-    void serializeSequenceContainer(const std::string &name, const Container &container) {
+    std::string serializeSequenceContainer(const Container &container) const {
         std::vector<std::string> elements;
         elements.reserve(container.size());
         for (const auto &element : container) {
             elements.push_back(serializeElementToString(element));
         }
-        serializeArray(name, elements);
+        return serializeToString(elements);
     }
     template <typename Container>
-    void serializeAssociativeContainer(const std::string &name, const Container &container) {
+    std::string serializeAssociativeContainer(const Container &container) const {
         std::vector<std::pair<std::string, std::string>> pairs;
         pairs.reserve(container.size());
         for (const auto &[key, value] : container) {
@@ -248,66 +245,7 @@ class TypedSerializer {
             std::string value_str = serializeElementToString(value);
             pairs.emplace_back(std::move(key_str), std::move(value_str));
         }
-        serializeObject(name, pairs);
-    }
-    template <typename T>
-    std::string serializeElementToString(const T &element) {
-        if constexpr (std::is_same_v<T, int>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, long>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, long long>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, unsigned int>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, unsigned long>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, unsigned long long>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, float>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, double>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, bool>) {
-            return element ? "true" : "false";
-        } else if constexpr (std::is_same_v<T, char>) {
-            return "\"" + std::string(1, element) + "\"";
-        } else if constexpr (std::is_same_v<T, std::string>) {
-            return "\"" + escapeString(element) + "\"";
-        } else if constexpr (std::is_same_v<T, std::int8_t>) {
-            return std::to_string(static_cast<int>(element));
-        } else if constexpr (std::is_same_v<T, std::int16_t>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, std::int32_t>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, std::int64_t>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, std::uint8_t>) {
-            return std::to_string(static_cast<unsigned int>(element));
-        } else if constexpr (std::is_same_v<T, std::uint16_t>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, std::uint32_t>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_same_v<T, std::uint64_t>) {
-            return std::to_string(element);
-        } else if constexpr (std::is_base_of_v<Serializable, T>) {
-            return serializeNestedToString(element);
-        } else if constexpr (is_associative_container<T>::value) {
-            std::vector<std::pair<std::string, std::string>> pairs;
-            for (const auto &[key, value] : element) {
-                pairs.emplace_back(serializeElementToString(key), serializeElementToString(value));
-            }
-            return createObject(pairs);
-        } else if constexpr (is_container<T>::value || has_begin_end<T>::value) {
-            std::vector<std::string> elements;
-            for (const auto &nested_element : element) {
-                elements.push_back(serializeElementToString(nested_element));
-            }
-            return createArray(elements);
-        } else {
-            return "\"[unsupported type]\"";
-        }
+        return serializeToString(pairs);
     }
 };
-
 }  // namespace az
