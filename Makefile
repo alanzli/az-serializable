@@ -1,12 +1,16 @@
 # Makefile for serialization framework
- CXX = g++
- HEADER_DIR = az
- INCLUDES = -I$(HEADER_DIR)
- CXXFLAGS = -std=c++17 -Wall -Wextra -O2 $(INCLUDES)
- BUILD_DIR = out
- EXAMPLE_DIR = examples
- TARGET = $(BUILD_DIR)/example
- SOURCES = $(EXAMPLE_DIR)/UsageExample.cpp
+ifeq ($(shell uname), Darwin)
+    CXX = clang++
+else
+    CXX = g++
+endif
+HEADER_DIR = az
+INCLUDES = -I. -I$(HEADER_DIR)
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 $(INCLUDES)
+BUILD_DIR = out
+EXAMPLE_DIR = examples
+TARGET = $(BUILD_DIR)/example
+SOURCES = $(EXAMPLE_DIR)/UsageExample.cpp
 
 # Build directory target
 $(BUILD_DIR):
@@ -19,7 +23,7 @@ $(BUILD_DIR):
  # Build all
  all: $(TARGET)
 
- # Run combined example
+ # Run example
  run: $(TARGET)
 	 ./$(TARGET)
 
@@ -27,7 +31,7 @@ $(BUILD_DIR):
  clean:
 	 rm -rf $(BUILD_DIR)
 
- # Test combined implementation
+ # Test implementation
  test: all
 	 ./$(TARGET)
 
