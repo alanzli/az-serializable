@@ -106,20 +106,20 @@ make all
 make test
 
 # Build specific examples
-make build/example           # Basic serialization example
-make build/container_example # Container serialization example
-make build/simple_types_example # Simple types demonstration
-make build/simple_test       # Basic verification test
+make out/example           # Basic serialization example
+make out/container_example # Container serialization example
+make out/simple_types_example # Simple types demonstration
+make out/simple_test       # Basic verification test
 ```
 
 ## Examples
 
 The framework includes several comprehensive examples:
 
-- **`ExampleUsage.cpp`** - Basic serialization with validation
-- **`ContainerExample.cpp`** - Advanced container serialization
-- **`SimpleTypesExample.cpp`** - Complete simple types demonstration
-- **`SimpleTypesTest.cpp`** - Basic verification test
+- **`tests/ExampleUsage.cpp`** - Basic serialization with validation
+- **`tests/ContainerExample.cpp`** - Advanced container serialization
+- **`tests/SimpleTypesExample.cpp`** - Complete simple types demonstration
+- **`tests/SimpleTypesTest.cpp`** - Basic verification test
 
 ## Architecture
 
