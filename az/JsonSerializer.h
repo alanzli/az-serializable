@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Serializable.h"
 #include "Serializer.h"
 
 namespace az {
