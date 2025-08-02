@@ -100,22 +100,22 @@ class ValidatedSerializer : public TypedSerializer {
     const std::string &getCurrentPath() const { return current_path_; }
 
     // Pure virtual methods from TypedSerializer - subclasses must implement
-    virtual void serializeProperty(const std::string &name, int value) override = 0;
-    virtual void serializeProperty(const std::string &name, long value) override = 0;
-    virtual void serializeProperty(const std::string &name, long long value) override = 0;
-    virtual void serializeProperty(const std::string &name, unsigned int value) override = 0;
-    virtual void serializeProperty(const std::string &name, unsigned long value) override = 0;
-    virtual void serializeProperty(const std::string &name, unsigned long long value) override = 0;
-    virtual void serializeProperty(const std::string &name, float value) override = 0;
-    virtual void serializeProperty(const std::string &name, double value) override = 0;
-    virtual void serializeProperty(const std::string &name, bool value) override = 0;
-    virtual void serializeProperty(const std::string &name, char value) override = 0;
-    virtual void serializeProperty(const std::string &name, const std::string &value) override = 0;
-    virtual void serializeProperty(const std::string &name, const char *value) override = 0;
-    virtual void serializeProperty(const std::string &name, std::int8_t value) override = 0;
-    virtual void serializeProperty(const std::string &name, std::int16_t value) override = 0;
-    virtual void serializeProperty(const std::string &name, std::uint8_t value) override = 0;
-    virtual void serializeProperty(const std::string &name, std::uint16_t value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, int value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, long value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, long long value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, unsigned int value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, unsigned long value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, unsigned long long value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, float value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, double value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, bool value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, char value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, const std::string &value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, const char *value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, std::int8_t value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, std::int16_t value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, std::uint8_t value) override = 0;
+    virtual void serializePropertyImpl(const std::string &name, std::uint16_t value) override = 0;
     virtual void serializeInt32(const std::string &name, std::int32_t value) override = 0;
     virtual void serializeInt64(const std::string &name, std::int64_t value) override = 0;
     virtual void serializeUint32(const std::string &name, std::uint32_t value) override = 0;
@@ -127,11 +127,10 @@ class ValidatedSerializer : public TypedSerializer {
     virtual void serializeUnsupportedType(const std::string &name) override = 0;
 
     // Helper methods that subclasses must implement
-    virtual std::string escapeJsonString(const std::string &input) const override = 0;
+    virtual std::string escapeString(const std::string &input) const override = 0;
     virtual std::string serializeNestedToString(const Serializable &obj) const override = 0;
-    virtual std::string createJsonArray(const std::vector<std::string> &elements) const override = 0;
-    virtual std::string createJsonObject(
-        const std::vector<std::pair<std::string, std::string>> &pairs) const override = 0;
+    virtual std::string createArray(const std::vector<std::string> &elements) const override = 0;
+    virtual std::string createObject(const std::vector<std::pair<std::string, std::string>> &pairs) const override = 0;
 
    private:
     SerializationErrorCollector error_collector_;

@@ -12,104 +12,7 @@
 namespace az {
 class JsonSerializer : public TypedSerializer {
    public:
-    // Reserve initial capacity for better performance
-    JsonSerializer() {
-        properties_.reserve(16);  // Assume typical object has ~16 properties
-        json_parts_.reserve(32);  // Reserve for JSON parts
-    }
-
-    // Type-specific serialization methods - no std::any overhead
-    void serializeProperty(const std::string &name, int value) override { addProperty(name, std::to_string(value)); }
-
-    void serializeProperty(const std::string &name, long value) override { addProperty(name, std::to_string(value)); }
-
-    void serializeProperty(const std::string &name, long long value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeProperty(const std::string &name, unsigned int value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeProperty(const std::string &name, unsigned long value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeProperty(const std::string &name, unsigned long long value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeProperty(const std::string &name, float value) override { addProperty(name, std::to_string(value)); }
-
-    void serializeProperty(const std::string &name, double value) override { addProperty(name, std::to_string(value)); }
-
-    void serializeProperty(const std::string &name, bool value) override {
-        addProperty(name, value ? "true" : "false");
-    }
-
-    void serializeProperty(const std::string &name, char value) override {
-        // Escape JSON string properly for single character
-        addProperty(name, "\"" + escapeJsonString(std::string(1, value)) + "\"");
-    }
-
-    void serializeProperty(const std::string &name, const std::string &value) override {
-        // Escape JSON string properly
-        addProperty(name, "\"" + escapeJsonString(value) + "\"");
-    }
-
-    void serializeProperty(const std::string &name, const char *value) override {
-        serializeProperty(name, std::string(value));
-    }
-
-    // Fixed-width integer types that are always distinct
-    void serializeProperty(const std::string &name, std::int8_t value) override {
-        addProperty(name, std::to_string(static_cast<int>(value)));
-    }
-
-    void serializeProperty(const std::string &name, std::int16_t value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeProperty(const std::string &name, std::uint8_t value) override {
-        addProperty(name, std::to_string(static_cast<unsigned int>(value)));
-    }
-
-    void serializeProperty(const std::string &name, std::uint16_t value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    // Helper methods for conditional fixed-width types
-    void serializeInt32(const std::string &name, std::int32_t value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeInt64(const std::string &name, std::int64_t value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeUint32(const std::string &name, std::uint32_t value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeUint64(const std::string &name, std::uint64_t value) override {
-        addProperty(name, std::to_string(value));
-    }
-
-    void serializeNestedObject(const std::string &name, const Serializable &value) override {
-        JsonSerializer nested;
-        value.serialize(nested);
-        addProperty(name, nested.toJson());
-    }
-
-    // Container serialization methods
-    void serializeArray(const std::string &name, const std::vector<std::string> &json_elements) override {
-        addProperty(name, createJsonArray(json_elements));
-    }
-
-    void serializeObject(const std::string &name,
-                         const std::vector<std::pair<std::string, std::string>> &json_pairs) override {
-        addProperty(name, createJsonObject(json_pairs));
-    }
+    JsonSerializer() = default;
 
     std::string toJson() const {
         if (properties_.empty()) {
@@ -143,11 +46,11 @@ class JsonSerializer : public TypedSerializer {
     // Method to clear and reuse serializer
     void clear() {
         properties_.clear();
-        json_parts_.clear();
+        parts_.clear();
     }
 
     // Make helper methods public for use in composition
-    std::string escapeJsonString(const std::string &input) const override {
+    std::string escapeString(const std::string &input) const override {
         std::string result;
         result.reserve(input.length() + 10);  // Reserve some extra space for escape chars
 
@@ -190,13 +93,94 @@ class JsonSerializer : public TypedSerializer {
         return result;
     }
 
+   protected:
+    void serializePropertyImpl(const std::string &name, long long value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializePropertyImpl(const std::string &name, unsigned long long value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializePropertyImpl(const std::string &name, double value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializePropertyImpl(const std::string &name, bool value) override {
+        addProperty(name, value ? "true" : "false");
+    }
+
+    void serializePropertyImpl(const std::string &name, char value) override {
+        // Escape JSON string properly for single character
+        addProperty(name, "\"" + escapeString(std::string(1, value)) + "\"");
+    }
+
+    void serializePropertyImpl(const std::string &name, const std::string &value) override {
+        // Escape JSON string properly
+        addProperty(name, "\"" + escapeString(value) + "\"");
+    }
+
+    void serializePropertyImpl(const std::string &name, const char *value) override {
+        serializePropertyImpl(name, std::string(value));
+    }
+
+    // Fixed-width integer types that are always distinct
+    void serializePropertyImpl(const std::string &name, std::int8_t value) override {
+        addProperty(name, std::to_string(static_cast<int>(value)));
+    }
+
+    void serializePropertyImpl(const std::string &name, std::int16_t value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializePropertyImpl(const std::string &name, std::uint8_t value) override {
+        addProperty(name, std::to_string(static_cast<unsigned int>(value)));
+    }
+
+    void serializePropertyImpl(const std::string &name, std::uint16_t value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    // Helper methods for conditional fixed-width types
+    void serializeInt32(const std::string &name, std::int32_t value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializeInt64(const std::string &name, std::int64_t value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializeUint32(const std::string &name, std::uint32_t value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializeUint64(const std::string &name, std::uint64_t value) override {
+        addProperty(name, std::to_string(value));
+    }
+
+    void serializeNestedObject(const std::string &name, const Serializable &value) override {
+        JsonSerializer nested;
+        value.serialize(nested);
+        addProperty(name, nested.toJson());
+    }
+
+    // Container serialization methods
+    void serializeArray(const std::string &name, const std::vector<std::string> &elements) override {
+        addProperty(name, createArray(elements));
+    }
+
+    void serializeObject(const std::string &name,
+                         const std::vector<std::pair<std::string, std::string>> &pairs) override {
+        addProperty(name, createObject(pairs));
+    }
+
     std::string serializeNestedToString(const Serializable &obj) const override {
         JsonSerializer nested;
         obj.serialize(nested);
         return nested.toJson();
     }
 
-    std::string createJsonArray(const std::vector<std::string> &elements) const override {
+    std::string createArray(const std::vector<std::string> &elements) const override {
         if (elements.empty()) {
             return "[]";
         }
@@ -212,7 +196,7 @@ class JsonSerializer : public TypedSerializer {
         return result;
     }
 
-    std::string createJsonObject(const std::vector<std::pair<std::string, std::string>> &pairs) const override {
+    std::string createObject(const std::vector<std::pair<std::string, std::string>> &pairs) const override {
         if (pairs.empty()) {
             return "{}";
         }
@@ -228,13 +212,11 @@ class JsonSerializer : public TypedSerializer {
         return result;
     }
 
-   protected:
     void serializeUnsupportedType(const std::string &name) override { addProperty(name, "\"[unsupported type]\""); }
 
    private:
-    // Use unordered_map for better performance on large objects
     std::unordered_map<std::string, std::string> properties_;
-    std::vector<std::string> json_parts_;  // For complex nested structures
+    std::vector<std::string> parts_;  // For complex nested structures
 
     void addProperty(const std::string &name, const std::string &value) { properties_[name] = value; }
 

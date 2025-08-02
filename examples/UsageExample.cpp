@@ -190,18 +190,63 @@ int main() {
     std::cout << "Numeric containers JSON:\n" << numeric_serializer.toJson() << "\n\n";
 
     // Performance test
-    std::cout << "=== Performance Test (int64_t vs int) ===\n";
+    std::cout << "=== Performance Test (int64_t and int) ===\n\n";
     const int iterations = 10000;
-    az::JsonSerializer perf_serializer;
+    std::vector<az::JsonSerializer> serializers;
+    serializers.reserve(iterations);
+    for (int i = 0; i < iterations; ++i) {
+        serializers.emplace_back();
+    }
+    std::vector<TypeSafetyDemo> perf_demos;
+    perf_demos.reserve(iterations);
+    for (int i = 0; i < iterations; ++i) {
+        perf_demos.emplace_back(static_cast<std::int8_t>(i % 128), static_cast<std::uint64_t>(i) * 1000000ULL);
+    }
+
+    std::string results;
+
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iterations; ++i) {
-        TypeSafetyDemo perf_demo(static_cast<std::int8_t>(i % 128), static_cast<std::uint64_t>(i) * 1000000ULL);
-        perf_demo.serialize(perf_serializer);
-        perf_serializer.clear();
+        perf_demos[i].serialize(serializers[i]);
+        results = serializers[i].toJson();  // Force serialization to JSON
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Performance: " << duration.count() << " microseconds for " << iterations << " iterations\n";
+    std::cout << "resulting JSON:\n";
+    std::cout << results << "\n\n";
+
+    // clear all serializers for next test
+    for (auto& serializer : serializers) {
+        serializer.clear();
+    }
+
+    std::cout << "Performance: " << duration.count() << " microseconds for " << iterations << " iterations\n\n";
+
+    // Performance test for nested objects
+    std::cout << "=== Performance Test (Nested Objects) ===\n\n";
+    std::vector<NestedContainerData> nested_perf_demos;
+    nested_perf_demos.reserve(iterations);
+    for (int i = 0; i < iterations; ++i) {
+        nested_perf_demos.emplace_back();
+    }
+
+    auto nested_start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < iterations; ++i) {
+        nested_perf_demos[i].serialize(serializers[i]);
+        results = serializers[i].toJson();  // Force serialization to JSON
+    }
+    auto nested_end = std::chrono::high_resolution_clock::now();
+    auto nested_duration = std::chrono::duration_cast<std::chrono::microseconds>(nested_end - nested_start);
+
+    std::cout << "resulting JSON:\n" << results << "\n\n";
+
+    std::cout << "Nested Performance: " << nested_duration.count() << " microseconds for " << iterations
+              << " iterations\n";
+
+    // clear all serializers for next test
+    for (auto& serializer : serializers) {
+        serializer.clear();
+    }
 
     std::cout << "\n=== All tests and examples ran successfully! ===\n";
     return 0;
