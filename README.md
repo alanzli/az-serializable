@@ -5,6 +5,7 @@ A high-performance, type-safe C++ serialization framework with comprehensive sup
 ## Features
 
 ### ✅ **Complete Type Support**
+
 - **Basic Types**: `int`, `long`, `long long`, `unsigned` variants
 - **Fixed-Width Types**: `int8_t`, `int16_t`, `int32_t`, `int64_t`, `uint8_t`, `uint16_t`, `uint32_t`, `uint64_t`
 - **Floating Point**: `float`, `double`
@@ -13,12 +14,14 @@ A high-performance, type-safe C++ serialization framework with comprehensive sup
 - **Nested Objects**: Full support for serializable object composition
 
 ### 🚀 **Performance Features**
+
 - **Zero Overhead**: Direct type dispatch without `std::any`
 - **Template-Based**: Compile-time type resolution
 - **Memory Efficient**: Optimized JSON generation with pre-allocation
 - **Platform Independent**: Handles type aliasing automatically
 
 ### 🛡️ **Type Safety & Validation**
+
 - **Compile-Time Checking**: Template constraints prevent invalid types
 - **Error Handling**: Comprehensive validation framework with detailed error messages
 - **Cross-Platform**: Consistent behavior across different architectures
@@ -31,17 +34,16 @@ A high-performance, type-safe C++ serialization framework with comprehensive sup
 #include "Serializable.h"
 #include "JsonSerializer.h"
 
-class Person : public Serializable {
-private:
+class Person : public az::Serializable {
+   private:
     std::string name_;
     int age_;
     bool active_;
-    
-public:
-    Person(const std::string& name, int age, bool active) 
-        : name_(name), age_(age), active_(active) {}
-    
-    void visitProperties(TypedSerializer& serializer) const override {
+
+   public:
+    Person(const std::string& name, int age, bool active) : name_(name), age_(age), active_(active) {}
+
+    void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("name", name_);
         serializer.serializeProperty("age", age_);
         serializer.serializeProperty("active", active_);
@@ -50,12 +52,12 @@ public:
 
 int main() {
     Person person("Alice", 30, true);
-    JsonSerializer serializer;
+    az::JsonSerializer serializer;
     person.serialize(serializer);
-    
+
     std::cout << serializer.toJson() << std::endl;
     // Output: {"name":"Alice","age":30,"active":true}
-    
+
     return 0;
 }
 ```
@@ -63,13 +65,13 @@ int main() {
 ### Container Support
 
 ```cpp
-class DataContainer : public Serializable {
-private:
+class DataContainer : public az::Serializable {
+   private:
     std::vector<int> numbers_;
     std::map<std::string, double> values_;
-    
-public:
-    void visitProperties(TypedSerializer& serializer) const override {
+
+   public:
+    void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("numbers", numbers_);
         serializer.serializeProperty("values", values_);
     }
@@ -79,15 +81,15 @@ public:
 ### Simple Types Example
 
 ```cpp
-class AllTypes : public Serializable {
-private:
+class AllTypes : public az::Serializable {
+   private:
     std::int64_t big_number_;
     std::uint32_t count_;
     float precision_;
     char grade_;
-    
-public:
-    void visitProperties(TypedSerializer& serializer) const override {
+
+   public:
+    void visitProperties(az::TypedSerializer& serializer) const override {
         serializer.serializeProperty("big_number", big_number_);
         serializer.serializeProperty("count", count_);
         serializer.serializeProperty("precision", precision_);
@@ -107,19 +109,13 @@ make test
 
 # Build specific examples
 make out/example           # Basic serialization example
-make out/container_example # Container serialization example
-make out/simple_types_example # Simple types demonstration
-make out/simple_test       # Basic verification test
 ```
 
 ## Examples
 
 The framework includes several comprehensive examples:
 
-- **`tests/ExampleUsage.cpp`** - Basic serialization with validation
-- **`tests/ContainerExample.cpp`** - Advanced container serialization
-- **`tests/SimpleTypesExample.cpp`** - Complete simple types demonstration
-- **`tests/SimpleTypesTest.cpp`** - Basic verification test
+- **`examples/UsageExample.cpp`** - Basic serialization with validation
 
 ## Architecture
 
