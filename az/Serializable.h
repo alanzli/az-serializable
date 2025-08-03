@@ -14,4 +14,5 @@ class Serializable {
     // Child classes implement this to visit their properties
     virtual void visitProperties(az::TypedSerializer &serializer) const = 0;
 };
+
 }  // namespace az
