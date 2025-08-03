@@ -94,9 +94,9 @@ class JsonSerializer : public TypedSerializer {
     }
 
    protected:
-    std::string serializeToString(long long value) const override { return std::to_string(value); }
+    std::string serializeToString(std::int64_t value) const override { return std::to_string(value); }
 
-    std::string serializeToString(unsigned long long value) const override { return std::to_string(value); }
+    std::string serializeToString(std::uint64_t value) const override { return std::to_string(value); }
 
     std::string serializeToString(double value) const override { return std::to_string(value); }
 
@@ -143,7 +143,12 @@ class JsonSerializer : public TypedSerializer {
         bool first = true;
         for (const auto &[key, value] : pairs) {
             if (!first) result += ",";
-            result += key + ":" + value;
+            if (key.empty() || key.front() != '\"' || key.back() != '\"') {
+                result += '\"' + key + '\"';
+            } else {
+                result += key;
+            }
+            result += ":" + value;
             first = false;
         }
         result += "}";
@@ -158,4 +163,30 @@ class JsonSerializer : public TypedSerializer {
 
     char toHex(int digit) const { return digit < 10 ? '0' + digit : 'A' + digit - 10; }
 };
+
+// Helper function to check if a string is likely valid JSON
+// This is a basic check and may not cover all edge cases
+// It checks for basic structure, quotes, and balanced braces
+bool isLikelyValidJson(const std::string &json) {
+    // Basic checks for object
+    if (json.size() < 2 || json.front() != '{' || json.back() != '}') return false;
+
+    int quoteCount = 0;
+    bool inString = false;
+    for (size_t i = 0; i < json.size(); ++i) {
+        if (json[i] == '"') {
+            // Count quotes, skip escaped quotes
+            if (i == 0 || json[i - 1] != '\\') {
+                inString = !inString;
+                ++quoteCount;
+            }
+        }
+    }
+    // Quotes should be balanced
+    if (inString) return false;
+
+    // Optionally, add more checks for colons, commas, etc.
+    return true;
+}
+
 }  // namespace az

@@ -158,35 +158,47 @@ int main() {
     std::cout << "=== Serialization Framework Demo ===\n\n";
     demonstrateTypeLimits();
 
+    std::string result;
+
     // Simple types
     SimpleTypesDemo simple_demo;
     az::JsonSerializer simple_serializer;
     simple_demo.serialize(simple_serializer);
-    std::cout << "Simple types JSON:\n" << simple_serializer.toJson() << "\n\n";
+    result = simple_serializer.toJson();
+    std::cout << "Simple types JSON:\n" << result << "\n";
+    std::cout << "isLikelyJsonCheck: " << (az::isLikelyValidJson(result) ? "true" : "false") << "\n\n";
 
     // Container types
     ContainerData container_demo;
     az::JsonSerializer container_serializer;
     container_demo.serialize(container_serializer);
-    std::cout << "Container types JSON:\n" << container_serializer.toJson() << "\n\n";
+    result = container_serializer.toJson();
+    std::cout << "Container types JSON:\n" << result << "\n";
+    std::cout << "isLikelyJsonCheck: " << (az::isLikelyValidJson(result) ? "true" : "false") << "\n\n";
 
     // Nested containers
     NestedContainerData nested_demo;
     az::JsonSerializer nested_serializer;
     nested_demo.serialize(nested_serializer);
-    std::cout << "Nested container JSON:\n" << nested_serializer.toJson() << "\n\n";
+    result = nested_serializer.toJson();
+    std::cout << "Nested container JSON:\n" << result << "\n";
+    std::cout << "isLikelyJsonCheck: " << (az::isLikelyValidJson(result) ? "true" : "false") << "\n\n";
 
     // Type safety
     TypeSafetyDemo type_demo(127, 18446744073709551615ULL);
     az::JsonSerializer type_serializer;
     type_demo.serialize(type_serializer);
-    std::cout << "Type safety JSON:\n" << type_serializer.toJson() << "\n\n";
+    result = type_serializer.toJson();
+    std::cout << "Type safety JSON:\n" << result << "\n";
+    std::cout << "isLikelyJsonCheck: " << (az::isLikelyValidJson(result) ? "true" : "false") << "\n\n";
 
     // Numeric containers
     NumericContainerDemo numeric_demo;
     az::JsonSerializer numeric_serializer;
     numeric_demo.serialize(numeric_serializer);
-    std::cout << "Numeric containers JSON:\n" << numeric_serializer.toJson() << "\n\n";
+    result = numeric_serializer.toJson();
+    std::cout << "Numeric containers JSON:\n" << result << "\n";
+    std::cout << "isLikelyJsonCheck: " << (az::isLikelyValidJson(result) ? "true" : "false") << "\n\n";
 
     // Performance test
     std::cout << "=== Performance Test (int64_t and int) ===\n\n";
