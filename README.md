@@ -2,6 +2,8 @@
 
 A high-performance, type-safe C++ serialization framework with comprehensive support for simple types, containers, and validation.
 
+**Header-only:** All source headers are located in the `az/` folder. No source compilation required—just include the headers in your project.
+
 ## Features
 
 ### ✅ **Complete Type Support**
@@ -127,38 +129,6 @@ class DataContainer : public az::Serializable {
 };
 ```
 
-};
-
-int main() {
-Person person("Alice", 30, true);
-az::JsonSerializer serializer;
-person.serialize(serializer);
-
-    std::cout << serializer.toJson() << std::endl;
-    // Output: {"name":"Alice","age":30,"active":true}
-
-    return 0;
-
-}
-
-````
-
-### Container Support
-
-```cpp
-class DataContainer : public az::Serializable {
-   private:
-    std::vector<int> numbers_;
-    std::map<std::string, double> values_;
-
-   public:
-    void visitProperties(az::TypedSerializer& serializer) const override {
-        serializer.serializeProperty("numbers", numbers_);
-        serializer.serializeProperty("values", values_);
-    }
-};
-````
-
 ### Simple Types Example
 
 ```cpp
@@ -181,20 +151,29 @@ class AllTypes : public az::Serializable {
 
 ## Building
 
+### Using CMake (Recommended)
+
 ```bash
+# Create a build directory
+mkdir build && cd build
+
+# Configure the project (Linux/macOS/Windows)
+cmake ..
+
 # Build all examples
-make all
+cmake --build .
 
-# Run all tests
-make test
+# Run basic example
+cmake --build . --target run
 
-# Build specific examples
-make out/example                          # Basic serialization example
-make out/validator_example                # Validator demo
+# Run validator demo
+cmake --build . --target run-validator
 
-# Run specific examples
-make run                                  # Run basic example
-make run-validator                        # Run validator demo
+# Build and copy headers to dist/
+cmake --build . --target dist
+
+# Clean build and dist directories
+cmake --build . --target clean
 ```
 
 ## Examples
@@ -290,10 +269,11 @@ The framework provides strong type safety through:
 
 ## Platform Support
 
-- **C++17** or later required
-- **Cross-Platform**: Works on Linux, Windows, macOS
-- **Architecture Independent**: Handles 32-bit and 64-bit systems
-- **Compiler Support**: GCC, Clang, MSVC
+**C++17** or later required
+**Cross-Platform**: Works on Linux, Windows, macOS
+**Architecture Independent**: Handles 32-bit and 64-bit systems
+**Compiler Support**: GCC, Clang, MSVC
+**Build System**: CMake (recommended for all platforms)
 
 ## Future Enhancements
 
