@@ -166,28 +166,57 @@ class JsonSerializer : public TypedSerializer {
     }
 };
 
-// Helper function to check if a string is likely valid JSON
-// This is a basic check and may not cover all edge cases
-// It checks for basic structure, quotes, and balanced braces
+// A lightweight heuristic to check if a string is likely valid JSON.
+// This does NOT fully validate JSON, but catches common mistakes.
 bool isLikelyValidJson(const std::string &json) {
-    // Basic checks for object
-    if (json.size() < 2 || json.front() != '{' || json.back() != '}') return false;
+    // Trim leading/trailing whitespace
+    auto ltrim = [](const std::string &s) {
+        size_t start = s.find_first_not_of(" \t\n\r");
+        return (start == std::string::npos) ? "" : s.substr(start);
+    };
+    auto rtrim = [](const std::string &s) {
+        size_t end = s.find_last_not_of(" \t\n\r");
+        return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+    };
+    std::string trimmed = ltrim(rtrim(json));
 
-    int quoteCount = 0;
-    bool inString = false;
-    for (size_t i = 0; i < json.size(); ++i) {
-        if (json[i] == '"') {
-            // Count quotes, skip escaped quotes
-            if (i == 0 || json[i - 1] != '\\') {
-                inString = !inString;
-                ++quoteCount;
-            }
-        }
+    if (trimmed.empty()) return false;
+    // Must start and end with {} or []
+    if (!((trimmed.front() == '{' && trimmed.back() == '}') || (trimmed.front() == '[' && trimmed.back() == ']'))) {
+        return false;
     }
-    // Quotes should be balanced
-    if (inString) return false;
 
-    // Optionally, add more checks for colons, commas, etc.
+    // Check for balanced braces/brackets and quotes
+    int brace = 0, bracket = 0;
+    bool in_string = false;
+    bool escape = false;
+    for (char c : trimmed) {
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (c == '\\') {
+            escape = true;
+            continue;
+        }
+        if (c == '"') {
+            in_string = !in_string;
+            continue;
+        }
+        if (in_string) continue;
+        if (c == '{') ++brace;
+        if (c == '}') --brace;
+        if (c == '[') ++bracket;
+        if (c == ']') --bracket;
+        if (brace < 0 || bracket < 0) return false;
+    }
+    if (brace != 0 || bracket != 0 || in_string) return false;
+
+    // Basic check for colon in objects and comma separation
+    if (trimmed.front() == '{') {
+        if (trimmed.find(':') == std::string::npos) return false;
+    }
+
     return true;
 }
 
