@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "az/Serializable.h"
-#include "az/Serializer.h"
+#include "az/TypedSerializer.h"
 
 namespace az {
 class JsonSerializer : public TypedSerializer {

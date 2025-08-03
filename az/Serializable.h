@@ -1,6 +1,6 @@
 // Serializable.h
 #pragma once
-#include "az/Serializer.h"
+#include "az/TypedSerializer.h"
 
 namespace az {
 // Base class with template-based visitor
