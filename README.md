@@ -163,12 +163,6 @@ cmake ..
 # Build all examples
 cmake --build .
 
-# Run basic example
-cmake --build . --target run
-
-# Run validator demo
-cmake --build . --target run-validator
-
 # Build and copy headers to dist/
 cmake --build . --target dist
 

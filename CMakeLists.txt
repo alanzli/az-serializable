@@ -28,31 +28,6 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_executable(example ${EXAMPLE_DIR}/UsageExample.cpp)
 add_executable(validator_example ${EXAMPLE_DIR}/ValidatorExample.cpp)
 
-# Custom targets for running examples
-if(WIN32)
-    add_custom_target(run
-        COMMAND example.exe
-        DEPENDS example
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-    add_custom_target(run-validator
-        COMMAND validator_example.exe
-        DEPENDS validator_example
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-else()
-    add_custom_target(run
-        COMMAND example
-        DEPENDS example
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-    add_custom_target(run-validator
-        COMMAND validator_example
-        DEPENDS validator_example
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-endif()
-
 # Clean target
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DIST_DIR}")
 
