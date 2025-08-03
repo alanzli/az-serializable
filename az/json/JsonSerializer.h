@@ -161,7 +161,9 @@ class JsonSerializer : public TypedSerializer {
 
     void processProperty(const std::string &name, const std::string &value) override { properties_[name] = value; }
 
-    char toHex(int digit) const { return digit < 10 ? '0' + digit : 'A' + digit - 10; }
+    char toHex(int digit) const {
+        return digit < 10 ? static_cast<char>('0' + digit) : static_cast<char>('A' + digit - 10);
+    }
 };
 
 // Helper function to check if a string is likely valid JSON

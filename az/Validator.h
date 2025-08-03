@@ -53,7 +53,7 @@ class TypedValidationRule : public ValidationRule {
         try {
             const T& typed_value = std::any_cast<const T&>(value);
             return validator_(property_name, typed_value, serialized_value);
-        } catch (const std::bad_any_cast& e) {
+        } catch (const std::bad_any_cast&) {
             return ValidationResult(false, "Type mismatch in validation rule for property: " + property_name);
         }
     }
