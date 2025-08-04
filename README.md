@@ -279,7 +279,7 @@ This extension to the az-serializable library provides automatic serialization w
 - **Zero runtime overhead** - generates the same code as manual implementation
 - **Full backward compatibility** with existing manual implementations
 - **Type-safe** - all existing type safety and validation features preserved
-- **Easy to use** - just inherit from `AutoSerializable<YourClass>` and use the `AZ_ENABLE_AUTO_SERIALIZATION` macro
+- **Easy to use** - just use the `AZ_SERIALIZE` macro
 
 ## Basic Usage
 
@@ -304,14 +304,14 @@ public:
 ### After (Automatic Implementation)
 
 ```cpp
-class Person : public az::AutoSerializable<Person> {
+class Person : public az::Serializable {
 private:
     std::string name_;
     int age_;
     double height_;
 
 public:
-    AZ_ENABLE_AUTO_SERIALIZATION(
+    AZ_SERIALIZE(
         AZ_MEMBER(name_),
         AZ_MEMBER(age_),
         AZ_MEMBER(height_)
@@ -325,7 +325,7 @@ public:
 #include "az/AutoSerializable.h"
 #include "az/json/JsonSerializer.h"
 
-class Employee : public az::AutoSerializable<Employee> {
+class Employee : public az::Serializable {
 private:
     std::string name_;
     int employee_id_;
@@ -341,7 +341,7 @@ public:
     }
 
     // Automatically serialize these members
-    AZ_ENABLE_AUTO_SERIALIZATION(
+    AZ_SERIALIZE(
         AZ_MEMBER(name_),
         AZ_MEMBER(employee_id_),
         AZ_MEMBER(salary_),
@@ -363,19 +363,12 @@ int main() {
 }
 ```
 
-## How It Works
-
-1. **CRTP Pattern**: `AutoSerializable<T>` uses the Curiously Recurring Template Pattern to call back to the derived class
-2. **Member Pointers**: `AZ_MEMBER(field)` creates a compile-time structure containing the member pointer and field name
-3. **Template Metaprogramming**: Uses `std::tuple` and `std::index_sequence` to iterate over members at compile-time
-4. **Fold Expressions**: C++17 fold expressions expand the tuple into individual `serializeProperty` calls
-
 ## Partial Serialization
 
 You can control which members are serialized by only including them in the macro:
 
 ```cpp
-class User : public az::AutoSerializable<User> {
+class User : public az::Serializable {
 private:
     std::string username_;
     std::string password_;  // Sensitive data
@@ -383,7 +376,7 @@ private:
 
 public:
     // Only serialize public information
-    AZ_ENABLE_AUTO_SERIALIZATION(
+    AZ_SERIALIZE(
         AZ_MEMBER(username_),
         AZ_MEMBER(email_)
         // password_ intentionally omitted
@@ -413,13 +406,6 @@ The AutoSerializable approach has:
 - **Minimal compile-time overhead** - template instantiation cost
 - **Same memory usage** - no additional data structures
 
-## Migration Guide
-
-1. Change base class from `az::Serializable` to `az::AutoSerializable<YourClass>`
-2. Remove the manual `visitProperties` method
-3. Add `AZ_ENABLE_AUTO_SERIALIZATION(...)` with your members
-4. Replace each member with `AZ_MEMBER(member_name)`
-
 ## Limitations
 
 - Members must be named at compile-time (no dynamic member lists)
@@ -431,7 +417,7 @@ The AutoSerializable approach has:
 
 **Compile Error**: "no matching function for call to 'serialize_auto'"
 
-- Make sure you've added the `AZ_ENABLE_AUTO_SERIALIZATION` macro
+- Make sure you've added the `AZ_SERIALIZE` macro
 
 **Compile Error**: "fold expression contains unexpanded parameter pack"
 
