@@ -107,7 +107,7 @@ int main() {
     std::cout << "\n=== Testing Valid User ===" << std::endl;
     try {
         User valid_user("john_doe", "john@example.com", 25, 50000.0);
-        az::JsonSerializer serializer;
+        az::UnorderedJsonSerializer serializer;
         serializer.setValidator(&validator);
 
         valid_user.serialize(serializer);
@@ -121,7 +121,7 @@ int main() {
     std::cout << "\n=== Testing Invalid User (Short Username) ===" << std::endl;
     try {
         User invalid_user1("jd", "john@example.com", 25, 50000.0);
-        az::JsonSerializer serializer;
+        az::UnorderedJsonSerializer serializer;
         serializer.setValidator(&validator);
 
         invalid_user1.serialize(serializer);
@@ -134,7 +134,7 @@ int main() {
     std::cout << "\n=== Testing Invalid User (Bad Email) ===" << std::endl;
     try {
         User invalid_user2("john_doe", "invalid-email", 25, 50000.0);
-        az::JsonSerializer serializer;
+        az::UnorderedJsonSerializer serializer;
         serializer.setValidator(&validator);
 
         invalid_user2.serialize(serializer);
@@ -147,7 +147,7 @@ int main() {
     std::cout << "\n=== Testing Invalid User (Negative Age) ===" << std::endl;
     try {
         User invalid_user3("john_doe", "john@example.com", -5, 50000.0);
-        az::JsonSerializer serializer;
+        az::UnorderedJsonSerializer serializer;
         serializer.setValidator(&validator);
 
         invalid_user3.serialize(serializer);
@@ -160,7 +160,7 @@ int main() {
     std::cout << "\n=== Testing With Validation Disabled ===" << std::endl;
     try {
         User invalid_user4("jd", "invalid-email", -5, -1000.0);
-        az::JsonSerializer serializer;
+        az::UnorderedJsonSerializer serializer;
 
         invalid_user4.serialize(serializer);
         std::cout << "Invalid user serialized without validation:" << std::endl;
@@ -171,7 +171,7 @@ int main() {
 
     // Test individual property validation
     std::cout << "\n=== Testing Individual Property Validation ===" << std::endl;
-    az::JsonSerializer test_serializer;
+    az::UnorderedJsonSerializer test_serializer;
     test_serializer.setValidator(&validator);
 
     auto result1 = test_serializer.validateProperty("username", std::string("ab"));

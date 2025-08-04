@@ -162,7 +162,7 @@ int main() {
 
     // Simple types
     SimpleTypesDemo simple_demo;
-    az::JsonSerializer simple_serializer;
+    az::UnorderedJsonSerializer simple_serializer;
     simple_demo.serialize(simple_serializer);
     result = simple_serializer.toJson();
     std::cout << "Simple types JSON:\n" << result << "\n";
@@ -170,7 +170,7 @@ int main() {
 
     // Container types
     ContainerData container_demo;
-    az::JsonSerializer container_serializer;
+    az::UnorderedJsonSerializer container_serializer;
     container_demo.serialize(container_serializer);
     result = container_serializer.toJson();
     std::cout << "Container types JSON:\n" << result << "\n";
@@ -178,7 +178,7 @@ int main() {
 
     // Nested containers
     NestedContainerData nested_demo;
-    az::JsonSerializer nested_serializer;
+    az::UnorderedJsonSerializer nested_serializer;
     nested_demo.serialize(nested_serializer);
     result = nested_serializer.toJson();
     std::cout << "Nested container JSON:\n" << result << "\n";
@@ -186,7 +186,7 @@ int main() {
 
     // Type safety
     TypeSafetyDemo type_demo(127, 18446744073709551615ULL);
-    az::JsonSerializer type_serializer;
+    az::UnorderedJsonSerializer type_serializer;
     type_demo.serialize(type_serializer);
     result = type_serializer.toJson();
     std::cout << "Type safety JSON:\n" << result << "\n";
@@ -194,7 +194,7 @@ int main() {
 
     // Numeric containers
     NumericContainerDemo numeric_demo;
-    az::JsonSerializer numeric_serializer;
+    az::UnorderedJsonSerializer numeric_serializer;
     numeric_demo.serialize(numeric_serializer);
     result = numeric_serializer.toJson();
     std::cout << "Numeric containers JSON:\n" << result << "\n";
@@ -203,7 +203,7 @@ int main() {
     // Performance test
     std::cout << "=== Performance Test (int64_t and int) ===\n\n";
     const int iterations = 10000;
-    std::vector<az::JsonSerializer> serializers;
+    std::vector<az::OrderedJsonSerializer> serializers;
     serializers.reserve(iterations);
     for (int i = 0; i < iterations; ++i) {
         serializers.emplace_back();

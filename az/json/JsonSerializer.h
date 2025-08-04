@@ -10,6 +10,7 @@
 #include "az/TypedSerializer.h"
 
 namespace az {
+template <typename PropertyContainer>
 class JsonSerializer : public TypedSerializer {
    public:
     JsonSerializer() = default;
@@ -44,10 +45,7 @@ class JsonSerializer : public TypedSerializer {
     }
 
     // Method to clear and reuse serializer
-    void clear() {
-        properties_.clear();
-        parts_.clear();
-    }
+    void clear() { properties_.clear(); }
 
     // Make helper methods public for use in composition
     std::string escapeString(const std::string &input) const override {
@@ -113,7 +111,7 @@ class JsonSerializer : public TypedSerializer {
     }
 
     std::string serializeToString(const az::Serializable &value) const override {
-        JsonSerializer nested;
+        JsonSerializer<PropertyContainer> nested;
         value.serialize(nested);
         return nested.toJson();
     }
@@ -156,15 +154,34 @@ class JsonSerializer : public TypedSerializer {
     }
 
    private:
-    std::unordered_map<std::string, std::string> properties_;
-    std::vector<std::string> parts_;  // For complex nested structures
+    PropertyContainer properties_;
+    std::conditional_t<az::is_associative_container<PropertyContainer>::value, std::monostate,
+                       std::unordered_map<std::string, int>>
+        existed_properties_;
 
-    void processProperty(const std::string &name, const std::string &value) override { properties_[name] = value; }
+    void processProperty(const std::string &name, const std::string &value) override {
+        if constexpr (az::is_associative_container<PropertyContainer>::value) {
+            properties_[name] = value;
+        } else {
+            auto it = existed_properties_.find(name);
+            if (it != existed_properties_.end()) {
+                // Property already exists, update value at its index
+                properties_[it->second].second = value;
+            } else {
+                properties_.emplace_back(name, value);
+                existed_properties_[name] = static_cast<int>(properties_.size());
+            }
+        }
+    }
 
     char toHex(int digit) const {
         return digit < 10 ? static_cast<char>('0' + digit) : static_cast<char>('A' + digit - 10);
     }
 };
+
+typedef JsonSerializer<std::unordered_map<std::string, std::string>> UnorderedJsonSerializer;
+typedef JsonSerializer<std::vector<std::pair<std::string, std::string>>> OrderedJsonSerializer;
+typedef JsonSerializer<std::map<std::string, std::string>> SortedJsonSerializer;
 
 // A lightweight heuristic to check if a string is likely valid JSON.
 // This does NOT fully validate JSON, but catches common mistakes.
