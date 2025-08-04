@@ -71,6 +71,40 @@ int main() {
 }
 ```
 
+### Macro Usage
+
+```cpp
+class Person : public az::Serializable {
+private:
+    std::string name_;
+    int age_;
+    double height_;
+
+protected:
+    AZ_SERIALIZE(
+        AZ_MEMBER(name_),
+        AZ_MEMBER(age_),
+        AZ_MEMBER(height_)
+    )
+};
+
+class Student : public Person {
+private:
+    std::string school_;
+    int grade_;
+    std::string student_id_;
+
+protected:
+    AZ_EXTEND(
+        Person, // extends base class
+        AZ_MEMBER(school_),
+        AZ_MEMBER(grade_),
+        AZ_MEMBER_X(student_id_, id) // serialize to id
+    )
+}
+
+```
+
 ### Validation Usage
 
 ```cpp
@@ -280,44 +314,6 @@ This extension to the az-serializable library provides automatic serialization w
 - **Full backward compatibility** with existing manual implementations
 - **Type-safe** - all existing type safety and validation features preserved
 - **Easy to use** - just use the `AZ_SERIALIZE` macro
-
-## Basic Usage
-
-### Before (Manual Implementation)
-
-```cpp
-class Person : public az::Serializable {
-private:
-    std::string name_;
-    int age_;
-    double height_;
-
-public:
-    void visitProperties(az::TypedSerializer& serializer) const override {
-        serializer.serializeProperty("name_", name_);
-        serializer.serializeProperty("age_", age_);
-        serializer.serializeProperty("height_", height_);
-    }
-};
-```
-
-### After (Automatic Implementation)
-
-```cpp
-class Person : public az::Serializable {
-private:
-    std::string name_;
-    int age_;
-    double height_;
-
-public:
-    AZ_SERIALIZE(
-        AZ_MEMBER(name_),
-        AZ_MEMBER(age_),
-        AZ_MEMBER(height_)
-    )
-};
-```
 
 ## Complete Example
 
