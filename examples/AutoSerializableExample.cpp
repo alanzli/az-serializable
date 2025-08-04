@@ -130,7 +130,7 @@ int main() {
     std::cout << "AutoSerializable Comprehensive Demo\n";
 
     // Create JSON serializer
-    az::JsonSerializer json_serializer;
+    az::FIFOJsonSerializer json_serializer;
 
     // Example 1: Simple Person
     printSeparator("1. Simple Person (AutoSerializable)");
