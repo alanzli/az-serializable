@@ -269,6 +269,178 @@ The framework provides strong type safety through:
 **Compiler Support**: GCC, Clang, MSVC
 **Build System**: CMake (recommended for all platforms)
 
+# AutoSerializable - Simplified Automatic Serialization
+
+This extension to the az-serializable library provides automatic serialization without needing to manually implement the `visitProperties` method.
+
+## Key Features
+
+- **Automatic member serialization** using C++ templates and macros
+- **Zero runtime overhead** - generates the same code as manual implementation
+- **Full backward compatibility** with existing manual implementations
+- **Type-safe** - all existing type safety and validation features preserved
+- **Easy to use** - just inherit from `AutoSerializable<YourClass>` and use the `AZ_ENABLE_AUTO_SERIALIZATION` macro
+
+## Basic Usage
+
+### Before (Manual Implementation)
+
+```cpp
+class Person : public az::Serializable {
+private:
+    std::string name_;
+    int age_;
+    double height_;
+
+public:
+    void visitProperties(az::TypedSerializer& serializer) const override {
+        serializer.serializeProperty("name_", name_);
+        serializer.serializeProperty("age_", age_);
+        serializer.serializeProperty("height_", height_);
+    }
+};
+```
+
+### After (Automatic Implementation)
+
+```cpp
+class Person : public az::AutoSerializable<Person> {
+private:
+    std::string name_;
+    int age_;
+    double height_;
+
+public:
+    AZ_ENABLE_AUTO_SERIALIZATION(
+        AZ_MEMBER(name_),
+        AZ_MEMBER(age_),
+        AZ_MEMBER(height_)
+    )
+};
+```
+
+## Complete Example
+
+```cpp
+#include "az/AutoSerializable.h"
+#include "az/json/JsonSerializer.h"
+
+class Employee : public az::AutoSerializable<Employee> {
+private:
+    std::string name_;
+    int employee_id_;
+    double salary_;
+    std::vector<std::string> skills_;
+
+public:
+    Employee(const std::string& name, int id, double salary)
+        : name_(name), employee_id_(id), salary_(salary) {}
+
+    void addSkill(const std::string& skill) {
+        skills_.push_back(skill);
+    }
+
+    // Automatically serialize these members
+    AZ_ENABLE_AUTO_SERIALIZATION(
+        AZ_MEMBER(name_),
+        AZ_MEMBER(employee_id_),
+        AZ_MEMBER(salary_),
+        AZ_MEMBER(skills_)
+    )
+};
+
+int main() {
+    Employee emp("Alice Johnson", 1001, 75000.0);
+    emp.addSkill("C++");
+    emp.addSkill("Python");
+
+    az::JsonSerializer serializer;
+    emp.serialize(serializer);
+    std::cout << serializer.toJson() << std::endl;
+    // Output: {"name_":"Alice Johnson","employee_id_":1001,"salary_":75000.000000,"skills_":["C++","Python"]}
+
+    return 0;
+}
+```
+
+## How It Works
+
+1. **CRTP Pattern**: `AutoSerializable<T>` uses the Curiously Recurring Template Pattern to call back to the derived class
+2. **Member Pointers**: `AZ_MEMBER(field)` creates a compile-time structure containing the member pointer and field name
+3. **Template Metaprogramming**: Uses `std::tuple` and `std::index_sequence` to iterate over members at compile-time
+4. **Fold Expressions**: C++17 fold expressions expand the tuple into individual `serializeProperty` calls
+
+## Partial Serialization
+
+You can control which members are serialized by only including them in the macro:
+
+```cpp
+class User : public az::AutoSerializable<User> {
+private:
+    std::string username_;
+    std::string password_;  // Sensitive data
+    std::string email_;
+
+public:
+    // Only serialize public information
+    AZ_ENABLE_AUTO_SERIALIZATION(
+        AZ_MEMBER(username_),
+        AZ_MEMBER(email_)
+        // password_ intentionally omitted
+    )
+};
+```
+
+## Supported Types
+
+All types supported by the original `TypedSerializer`:
+
+- Primitive types: `int`, `float`, `double`, `bool`, `char`, `std::string`
+- Standard containers: `std::vector`, `std::map`, `std::set`, etc.
+- Nested serializable objects
+- Custom types with proper serialization support
+
+## Requirements
+
+- **C++17 or later** (uses fold expressions and other modern features)
+- All members must be accessible where the macro is used (typically in public/protected sections)
+
+## Performance
+
+The AutoSerializable approach has:
+
+- **Zero runtime overhead** - same performance as manual implementation
+- **Minimal compile-time overhead** - template instantiation cost
+- **Same memory usage** - no additional data structures
+
+## Migration Guide
+
+1. Change base class from `az::Serializable` to `az::AutoSerializable<YourClass>`
+2. Remove the manual `visitProperties` method
+3. Add `AZ_ENABLE_AUTO_SERIALIZATION(...)` with your members
+4. Replace each member with `AZ_MEMBER(member_name)`
+
+## Limitations
+
+- Members must be named at compile-time (no dynamic member lists)
+- Only works with direct member variables (not getter/setter methods)
+- Requires C++17 for fold expressions
+- Member names in JSON output include any naming conventions (like trailing underscores)
+
+## Troubleshooting
+
+**Compile Error**: "no matching function for call to 'serialize_auto'"
+
+- Make sure you've added the `AZ_ENABLE_AUTO_SERIALIZATION` macro
+
+**Compile Error**: "fold expression contains unexpanded parameter pack"
+
+- Ensure you're compiling with C++17 or later (`-std=c++17` or `set(CMAKE_CXX_STANDARD 17)`)
+
+**Runtime Error**: Member not found
+
+- Check that all members listed in `AZ_MEMBER()` actually exist in the class
+
 ## Future Enhancements
 
 - XML serialization support

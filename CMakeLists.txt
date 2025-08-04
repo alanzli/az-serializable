@@ -26,4 +26,4 @@ include_directories(${CMAKE_SOURCE_DIR})
 # Example targets
 add_executable(example ${EXAMPLE_DIR}/UsageExample.cpp)
 add_executable(validator_example ${EXAMPLE_DIR}/ValidatorExample.cpp)
-
+add_executable(auto_serializable_example ${EXAMPLE_DIR}/AutoSerializableExample.cpp)
