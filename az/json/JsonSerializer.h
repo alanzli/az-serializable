@@ -10,7 +10,7 @@
 #include "az/TypedSerializer.h"
 
 namespace az {
-template <typename PropertyContainer>
+template <typename PropertyContainer, bool reverse = false>
 class JsonSerializerBase : public TypedSerializer {
    public:
     JsonSerializerBase() = default;
@@ -31,14 +31,28 @@ class JsonSerializerBase : public TypedSerializer {
 
         result += '{';
         bool first = true;
-        for (const auto &[key, val] : properties_) {
-            if (!first) result += ',';
-            result += '\"';
-            result += key;
-            result += "\":";
-            result += val;
-            first = false;
+
+        // Iterate over properties in reverse order if requested
+        if constexpr (reverse) {
+            for (auto it = properties_.rbegin(); it != properties_.rend(); ++it) {
+                if (!first) result += ',';
+                result += '\"';
+                result += it->first;
+                result += "\":";
+                result += it->second;
+                first = false;
+            }
+        } else {
+            for (const auto &[key, val] : properties_) {
+                if (!first) result += ',';
+                result += '\"';
+                result += key;
+                result += "\":";
+                result += val;
+                first = false;
+            }
         }
+
         result += '}';
 
         return result;
@@ -179,13 +193,15 @@ class JsonSerializerBase : public TypedSerializer {
         existed_properties_;
 };
 
-typedef JsonSerializerBase<std::unordered_map<std::string, std::string>> UnorderedJsonSerializer;
+using UnorderedJsonSerializer = JsonSerializerBase<std::unordered_map<std::string, std::string>>;
 
-typedef JsonSerializerBase<std::vector<std::pair<std::string, std::string>>> OrderedJsonSerializer;
+using OrderedJsonSerializer = JsonSerializerBase<std::map<std::string, std::string>>;
 
-typedef JsonSerializerBase<std::map<std::string, std::string>> SortedJsonSerializer;
+using FIFOJsonSerializer = JsonSerializerBase<std::vector<std::pair<std::string, std::string>>>;
 
-typedef UnorderedJsonSerializer JsonSerializer;
+using LIFOJsonSerializer = JsonSerializerBase<std::vector<std::pair<std::string, std::string>>, true>;
+
+using JsonSerializer = UnorderedJsonSerializer;  // Default to unordered for simplicity
 
 // A lightweight heuristic to check if a string is likely valid JSON.
 // This does NOT fully validate JSON, but catches common mistakes.

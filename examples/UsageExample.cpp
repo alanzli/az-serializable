@@ -170,7 +170,7 @@ int main() {
 
     // Container types
     ContainerData container_demo;
-    az::UnorderedJsonSerializer container_serializer;
+    az::FIFOJsonSerializer container_serializer;
     container_demo.serialize(container_serializer);
     result = container_serializer.toJson();
     std::cout << "Container types JSON:\n" << result << "\n";
@@ -178,7 +178,7 @@ int main() {
 
     // Nested containers
     NestedContainerData nested_demo;
-    az::UnorderedJsonSerializer nested_serializer;
+    az::OrderedJsonSerializer nested_serializer;
     nested_demo.serialize(nested_serializer);
     result = nested_serializer.toJson();
     std::cout << "Nested container JSON:\n" << result << "\n";
@@ -194,7 +194,7 @@ int main() {
 
     // Numeric containers
     NumericContainerDemo numeric_demo;
-    az::UnorderedJsonSerializer numeric_serializer;
+    az::LIFOJsonSerializer numeric_serializer;
     numeric_demo.serialize(numeric_serializer);
     result = numeric_serializer.toJson();
     std::cout << "Numeric containers JSON:\n" << result << "\n";
@@ -203,7 +203,7 @@ int main() {
     // Performance test
     std::cout << "=== Performance Test (int64_t and int) ===\n\n";
     const int iterations = 10000;
-    std::vector<az::OrderedJsonSerializer> serializers;
+    std::vector<az::UnorderedJsonSerializer> serializers;
     serializers.reserve(iterations);
     for (int i = 0; i < iterations; ++i) {
         serializers.emplace_back();
