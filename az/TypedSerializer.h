@@ -101,15 +101,16 @@ class TypedSerializer {
 
    protected:
     virtual void processProperty(const std::string &name, const std::string &value) = 0;
-    virtual std::string serializeToString(std::int64_t value) const = 0;
-    virtual std::string serializeToString(std::uint64_t value) const = 0;
-    virtual std::string serializeToString(double value) const = 0;
     virtual std::string serializeToString(bool value) const = 0;
     virtual std::string serializeToString(char value) const = 0;
     virtual std::string serializeToString(const std::string &value) const = 0;
     virtual std::string serializeToString(const Serializable &obj) const = 0;
     virtual std::string serializeToString(const std::vector<std::string> &elements) const = 0;
     virtual std::string serializeToString(const std::vector<std::pair<std::string, std::string>> &pairs) const = 0;
+
+    virtual std::string serializeToString(std::int64_t value) const { return std::to_string(value); }
+    virtual std::string serializeToString(std::uint64_t value) const { return std::to_string(value); }
+    virtual std::string serializeToString(double value) const { return std::to_string(value); }
 
     virtual std::string serializeUnsupportedType() const { return "\"[unsupported type]\""; }
 

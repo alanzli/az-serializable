@@ -59,7 +59,68 @@ class JsonSerializerBase : public TypedSerializer {
     }
 
     // Method to clear and reuse serializer
-    void clear() { properties_.clear(); }
+    void clear() {
+        properties_.clear();
+        if constexpr (!az::is_associative_container<PropertyContainer>::value) {
+            existed_properties_.clear();
+        }
+    }
+
+   protected:
+    std::string serializeToString(bool value) const override { return value ? "true" : "false"; }
+
+    std::string serializeToString(char value) const override {
+        // Escape JSON string properly for single character
+        return "\"" + escapeString(std::string(1, value)) + "\"";
+    }
+
+    std::string serializeToString(const std::string &value) const override {
+        // Escape JSON string properly
+        return "\"" + escapeString(value) + "\"";
+    }
+
+    std::string serializeToString(const az::Serializable &value) const override {
+        JsonSerializerBase<PropertyContainer, reverse> nested;
+        value.serialize(nested);
+        return nested.toJson();
+    }
+
+    std::string serializeToString(const std::vector<std::string> &elements) const override {
+        if (elements.empty()) {
+            return "[]";
+        }
+
+        std::string result = "[";
+        bool first = true;
+        for (const auto &element : elements) {
+            if (!first) result += ",";
+            result += element;
+            first = false;
+        }
+        result += "]";
+        return result;
+    }
+
+    std::string serializeToString(const std::vector<std::pair<std::string, std::string>> &pairs) const override {
+        if (pairs.empty()) {
+            return "{}";
+        }
+
+        std::string result = "{";
+        bool first = true;
+        for (const auto &[key, value] : pairs) {
+            if (!first) result += ",";
+            if (key.empty() || key.front() != '\"' || key.back() != '\"') {
+                result += '\"' + key + '\"';
+            } else {
+                result += key;
+            }
+            result += ":" + value;
+            first = false;
+        }
+        result += "}";
+        return result;
+    }
 
     // Make helper methods public for use in composition
     std::string escapeString(const std::string &input) const override {
@@ -102,68 +163,6 @@ class JsonSerializerBase : public TypedSerializer {
                     break;
             }
         }
-        return result;
-    }
-
-   protected:
-    std::string serializeToString(std::int64_t value) const override { return std::to_string(value); }
-
-    std::string serializeToString(std::uint64_t value) const override { return std::to_string(value); }
-
-    std::string serializeToString(double value) const override { return std::to_string(value); }
-
-    std::string serializeToString(bool value) const override { return value ? "true" : "false"; }
-
-    std::string serializeToString(char value) const override {
-        // Escape JSON string properly for single character
-        return "\"" + escapeString(std::string(1, value)) + "\"";
-    }
-
-    std::string serializeToString(const std::string &value) const override {
-        // Escape JSON string properly
-        return "\"" + escapeString(value) + "\"";
-    }
-
-    std::string serializeToString(const az::Serializable &value) const override {
-        JsonSerializerBase<PropertyContainer> nested;
-        value.serialize(nested);
-        return nested.toJson();
-    }
-
-    std::string serializeToString(const std::vector<std::string> &elements) const override {
-        if (elements.empty()) {
-            return "[]";
-        }
-
-        std::string result = "[";
-        bool first = true;
-        for (const auto &element : elements) {
-            if (!first) result += ",";
-            result += element;
-            first = false;
-        }
-        result += "]";
-        return result;
-    }
-
-    std::string serializeToString(const std::vector<std::pair<std::string, std::string>> &pairs) const override {
-        if (pairs.empty()) {
-            return "{}";
-        }
-
-        std::string result = "{";
-        bool first = true;
-        for (const auto &[key, value] : pairs) {
-            if (!first) result += ",";
-            if (key.empty() || key.front() != '\"' || key.back() != '\"') {
-                result += '\"' + key + '\"';
-            } else {
-                result += key;
-            }
-            result += ":" + value;
-            first = false;
-        }
-        result += "}";
         return result;
     }
 
