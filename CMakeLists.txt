@@ -20,7 +20,6 @@ endif()
 # Directories
 set(HEADER_DIR "${CMAKE_SOURCE_DIR}/az")
 set(EXAMPLE_DIR "${CMAKE_SOURCE_DIR}/examples")
-set(DIST_DIR "${CMAKE_BINARY_DIR}/dist")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -28,11 +27,3 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_executable(example ${EXAMPLE_DIR}/UsageExample.cpp)
 add_executable(validator_example ${EXAMPLE_DIR}/ValidatorExample.cpp)
 
-# Clean target
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DIST_DIR}")
-
-# Dist target
-add_custom_target(dist
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${DIST_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${HEADER_DIR} ${DIST_DIR}/az
-)

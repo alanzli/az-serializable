@@ -173,6 +173,7 @@ class TypedSerializer {
         }
         return serializeToString(elements);
     }
+
     template <typename Container>
     std::string serializeAssociativeContainer(const Container &container) const {
         std::vector<std::pair<std::string, std::string>> pairs;

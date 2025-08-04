@@ -29,7 +29,7 @@ class SimpleTypesDemo : public az::Serializable {
     std::string string_val = "Hello";
     std::int8_t int8_val = -128;
     std::int16_t int16_val = 32767;
-    std::int32_t int32_val = -2147483648;
+    std::int32_t int32_val = -214748364;
     std::int64_t int64_val = 9223372036854775807LL;
     std::uint8_t uint8_val = 255;
     std::uint16_t uint16_val = 65535;
